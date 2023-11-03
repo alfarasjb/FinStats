@@ -15,13 +15,14 @@ def test_download():
 
 def test_build_data():
     samples = 10
-    data, close = build_data('AAPL', samples)
+    app = App()
+    data, close = build_data(app = app, symbol = 'AAPL', samples = samples)
     assert type(data) == dict
     assert type(close) == pd.Series 
     assert close.shape[0] == samples
 
     with pytest.raises(AssertionError):
-        build_data('AAPL', 0)
+        build_data(app = app, symbol = 'AAPL', samples = 0)
 
 def test_validate_entry():
     data = [('',''),('AAPL',''),('','10')]
