@@ -1,45 +1,20 @@
-
-'''
-TODOS
-PENDING: 
-- 3 min video demo
-
-DONE:
-- main function DONE
-- 3 or more additional functions, and must be accompanied with pytest DONE
-- mainfile: project.py DONE
-- additional functions must be standalone (same level as main) DONE
-- test: test_project.py DONE
-- pip installable libraries in a file called "requirements.txt" DONE
-'''
 import warnings
-import os
-from datetime import datetime as dt
 from threading import Thread
-
-from fpdf import FPDF
 import customtkinter as ctk
 from PIL import ImageTk
-import pandas as pd
-import numpy as np
-import scipy.stats as sc
-import yfinance as yf
-import math 
-import seaborn as sns
-
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates 
+
+from .ops import Ops
 
 
 warnings.filterwarnings('ignore')
 
 ctk.set_appearance_mode('System')
 ctk.set_default_color_theme('green')
-plt.style.use('seaborn-darkgrid')
 
-title = 'Stocks in a nutshell'
+title = 'FinStats'
 w, h = 800, 550
+icon = 'finstats/icon.png'
 
 
 class App(ctk.CTk):
@@ -53,7 +28,7 @@ class App(ctk.CTk):
         # WINDOW CONFIG
         self.title(title)
         self.wm_iconbitmap()
-        self.iconphoto(True, ImageTk.PhotoImage(file = r'icon.png'))
+        self.iconphoto(True, ImageTk.PhotoImage(file = icon))
         self.geometry(f'{w}x{h}')
         self.maxsize(w, h)
         self.minsize(w, h)
@@ -160,7 +135,7 @@ class App(ctk.CTk):
     def export_data(self):
         # parent: export
         try:
-            fig_path = export(self.symbol, self.data, (self.hist, self.pc))
+            fig_path = self.ops.export(self.data, (self.hist, self.pc))
             self.msg(f'Exported to: {fig_path}', 'confirm')
         except AttributeError:
             self.msg('Nothing to export')
@@ -170,6 +145,10 @@ class App(ctk.CTk):
         # parent: fetch
         self.msg()
         self.data = None
+
+        # create ops here
+        
+
         # validate entry, if pass, proceed to fetching data 
         try:
             sym_entry = self.symbol_entry.get().strip().upper()
@@ -177,7 +156,9 @@ class App(ctk.CTk):
 
             self.symbol = symbol if sym_entry == '' else sym_entry 
             self.samples = samples if smpl_entry == '' else smpl_entry
-            self.symbol, self.samples = validate_entry(self.symbol, self.samples)
+            #self.symbol, self.samples = validate_entry(self.symbol, self.samples)
+            self.ops = Ops(self.symbol, self.samples)
+            self.symbol, self.samples = self.ops.validate_entry()
 
         except ValueError:
             # symbol input is empty
@@ -192,7 +173,8 @@ class App(ctk.CTk):
             #self.data, self.close = build_data(self.symbol, int(self.samples))
             # CREATE PROGRESS BAR HERE
             self.msg(type = 'load')
-            start_download_thread(self, self.symbol, self.samples)
+            #start_download_thread(self, self.symbol, self.samples)
+            self.ops.start_download_thread(self)
             self.after(1000, self.check_if_done)
 
             
@@ -234,7 +216,8 @@ class App(ctk.CTk):
             # END PROGRESS BAR HERE
             self.message.destroy()
             try:
-                self.hist, self.pc = plot_data(self.close, self.data, self.symbol)
+                #self.hist, self.pc = plot_data(self.close, self.data, self.symbol)
+                self.hist, self.pc = self.ops.plot()
                 self.update_statistics(self.data)
                 self.tab_func()
             except AttributeError:
@@ -263,190 +246,5 @@ class App(ctk.CTk):
             # loading progress bar
             
 
-
     ### ========== UI UPDATES / UTILITIES ========== ###
 
-
-
-### ========== GENERAL UTILITIES / VALIDATION ========== ###
-def validate_entry(symbol:str = '', samples:str = ''):
-        '''
-        testing: symbol and samples == '' raises value error
-        letters in samples raises assertion error
-        '''
-        # get entry field values
-        # compare: (func parameters are only used for unit testing)
-        # use func parameters if input fields are empty
-
-        # main validation: 
-        # symbol = valid string
-        # sample is numeric
-
-
-        # check if fields are not empty
-        # leave this portion below assignment, otherwise, testing will be faulty
-        if symbol == '' or samples == '':
-            raise ValueError
-        
-        # check if if input samples is numeric
-        assert samples.isnumeric()
-
-        return symbol, int(samples)
-
-def start_download_thread(app, symbol:str = 'AAPL', samples:int = 10):
-    b = Thread(target = build_data, args = [app, symbol, samples])
-    b.start()
-    app.is_loading = True
-
-### ========== GENERAL UTILITIES / VALIDATION ========== ###
-
-
-### ========== CRITICAL METHODS ========= ###
-def download(symbol:str = 'AAPL', samples:int = 10):
-    '''
-    # testing: samples assertion 
-    # output type: dataframe
-    # output shape (samples, columns (6))
-    # test wrong symbol raises value error
-    '''
-    df = yf.download(symbol, interval = '1d').tail(samples)
-
-    if df.empty:
-        raise ValueError(f'No data for symbol: {symbol}')
-
-    return df
-
-def build_data(app, symbol:str = 'AAPL', samples:int = 10):
-    '''
-    testing: samples assertion
-    output type: list, pd.series
-    lower case symbol
-    '''
-    assert samples > 5
-    try:
-        df = download(str(symbol).upper(), samples)
-    except ValueError: 
-        app.is_loading = False # triggers end of download
-        return None # ends thread
-    close = df['Close']
-
-    mean, median, mode = np.mean(close), np.median(close), sc.mode(close, keepdims = True)
-    var, skew, kurt, sdev = np.var(close), sc.skew(close), sc.kurtosis(close), math.sqrt(np.var(close))
-    start_date = df.index[0].strftime('%m/%d/%Y')
-    end_date = df.index[-1].strftime('%m/%d/%Y')
-    main_data = [samples, start_date, end_date, mean, median.item(), mode[0][0].item(), sdev, var, skew, kurt]
-    updated = [round(d, 2) if type(d) == float else d for d in main_data]
-    key = ['samples','start','end','mean','median','mode','sdev','var','skew','kurt']
-    data = {k:v for k,v in zip(key,updated)}
-
-    app.data = data
-    app.close = close
-    app.is_loading = False
-
-    return data, close
-
-def plot_data(data:pd.Series, main_data:dict, symbol:str):
-    samples = main_data['samples']
-    mean = main_data['mean']
-    sdev = main_data['sdev']
-    var = main_data['var']
-    skew = main_data['skew']
-    kurt = main_data['kurt']
-    
-    close_label = f'Close - {symbol} | {samples} days'
-    fs = 8
-    fc = '#EAEAF2'
-    fig_w, fig_h = 5, 4.2
-
-    # hist portion
-    hist, axh = plt.subplots(facecolor = fc, edgecolor = 'black')
-    hist.set_size_inches(fig_w, fig_h)
-    axh.clear()
-    axh = sns.distplot(data, kde = True, bins = 10)
-    axh.axvline(mean, ls = '--', label = f'Mean {mean}')
-    axh.axvline(mean + sdev, ls = ':', label = f'Std. Dev +/- {sdev}')
-    axh.axvline(mean - sdev, ls = ':')
-    axh.set_ylabel('Density', fontsize = fs)
-    axh.set_xlabel(close_label, fontsize = fs)
-    axh.tick_params(labelsize = fs)
-    axh.axes.set_title(f'Variance: {var} | Skew: {skew} | Kurt: {kurt}', fontsize = fs)
-    axh.legend(fontsize = fs)
-
-    # price portion
-    interval = round(int(samples) / 5)
-    pc, axp = plt.subplots(facecolor = fc, edgecolor = 'black')
-    pc.set_size_inches(fig_w, fig_h)
-    axp.clear()
-    plt.plot(data, label = 'Close')
-    plt.ylabel(close_label, fontsize = fs)
-    plt.xlabel('Date', fontsize = fs)
-    plt.xticks(fontsize = fs, rotation = 45)
-    plt.yticks(fontsize = fs)
-    plt.legend(fontsize = fs)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval = interval))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    plt.gcf().autofmt_xdate()
-
-    return hist, pc
-
-def export(sym: str, main_data: dict, figs:tuple = None):
-    '''
-    EXPORTING TO PDF: 
-    1. convert figure to image
-    2. add image to pdf
-    '''
-    smpl = main_data['samples']
-    start_date = main_data['start']
-    end_date = main_data['end']
-    p = 'exports'
-    if not os.path.exists(p):
-        os.mkdir(p)
-
-    today = dt.today().strftime('%Y%m%d')
-    fig_path = f'exports/{sym}_{smpl}_{today}'
-    if not os.path.exists(fig_path):
-        os.mkdir(fig_path)
-
-    hist_path = f'{fig_path}/{sym}_{smpl}_hist.jpg'
-    pc_path = f'{fig_path}/{sym}_{smpl}_pc.jpg'
-    pdf_path = f'{fig_path}/{sym}_{smpl}.pdf'
-    
-    hist, pc = figs[0], figs[1]
-    hist.savefig(hist_path, dpi = 300)
-    pc.savefig(pc_path, dpi = 300)
-
-    title = f'{sym} {smpl}-day Summary'
-    dates = f'{start_date} to {end_date}'
-    #pdf 
-    page_width, page_height = 210, 297
-    pdf = FPDF(orientation = 'portrait', format = 'A4', unit = 'mm')
-    pdf.set_margins(0, 0, 0)
-    pdf.add_page()
-    pdf.set_y(10)
-    pdf.set_font('helvetica', size = 30)
-    pdf.cell(w = page_width, h = 20, text = title, align = 'C')
-
-    pdf.set_y(20)
-    pdf.set_font('helvetica', size = 12)
-    pdf.cell(w = page_width, h = 20, text = dates, align = 'C')
-
-    pdf.image(hist_path, x = 35, y = 40, w = page_width * 0.65, keep_aspect_ratio=True)
-    pdf.image(pc_path, x = 35, y = 165, w = page_width * 0.65,keep_aspect_ratio=True)
-
-    pdf.output(pdf_path)
-
-    return f'{sym}_{smpl}_{today}'
-### ========== CRITICAL METHODS ========== ###
-
-
-
-### ========== MAIN ========== ###
-def main():
-    app = App()
-    app.mainloop()
-
-if __name__ == "__main__":
-    t = Thread(target = main)
-    t.start()
-### ========== MAIN ========== ###
