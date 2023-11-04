@@ -1,4 +1,4 @@
-# Stocks-In-A-Nutshell
+# FinStats
 
 #### Video Demo: https://youtu.be/hs_t3B6dDh8
 
