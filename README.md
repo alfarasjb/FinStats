@@ -1,8 +1,9 @@
 # FinStats
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-#### Video Demo: https://youtu.be/hs_t3B6dDh8
 
 #### A query engine for generating financial statistics for a selected stock listed on Yahoo Finance, such as Standard Deviation, Variance, Skewness for a user-specified period. The program also displays a histogram, with a distribution curve, and a simple line graph of closing prices for that said period. An option to save as pdf is also provided. Examples of which can be found [here](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports).
+
+
 
 ![hist](https://github.com/alfarasjb/FinStats/blob/main/screenshots/hist_ss.png)
 
@@ -16,6 +17,7 @@ _summary with price plot_
 #### **OBJECTIVE**
 Generate a user-friendly query engine for providing financial statistics and figures for financial instruments to provide a quantitative overview to aid in arriving at profitable investment and trading decisions.
 
+[Demo](https://youtu.be/hs_t3B6dDh8)
 
 #### **MAIN LIBRARIES AND IMPORTS**
 1. _customtkinter_ - UI Library
