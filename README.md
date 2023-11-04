@@ -4,12 +4,12 @@
 
 #### A query engine for generating financial statistics for a selected stock listed on Yahoo Finance, such as Standard Deviation, Variance, Skewness for a user-specified period. The program also displays a histogram, with a distribution curve, and a simple line graph of closing prices for that said period. An option to save as pdf is also provided. Examples of which can be found [here](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports).
 
-![hist](https://github.com/alfarasjb/FinStats/blob/main/screenshots/hist.png)
+![hist](https://github.com/alfarasjb/FinStats/blob/main/screenshots/hist_ss.png)
 
 _summary with histogram plot_
 
 
-![prc](https://github.com/alfarasjb/FinStats/blob/main/screenshots/prc.png)
+![prc](https://github.com/alfarasjb/FinStats/blob/main/screenshots/prc_ss.png)
 
 _summary with price plot_
 
