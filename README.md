@@ -2,7 +2,7 @@
 
 #### Video Demo: https://youtu.be/hs_t3B6dDh8
 
-#### A query engine for generating a statistical summary for a selected stock listed on Yahoo Finance, such as Standard Deviation, Variance, Skewness for a user-specified period. The program also displays a histogram, with a distribution curve, and a simple line graph of closing prices for that said period. An option to save as pdf is also provided. Examples of which can be found [here](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports).
+#### A query engine for generating financial statistics for a selected stock listed on Yahoo Finance, such as Standard Deviation, Variance, Skewness for a user-specified period. The program also displays a histogram, with a distribution curve, and a simple line graph of closing prices for that said period. An option to save as pdf is also provided. Examples of which can be found [here](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports).
 
 ![hist](https://github.com/alfarasjb/Stocks-In-A-Nutshell/assets/72119101/27109270-46e3-4d6f-88b7-dcd8f3ed505a)
 
@@ -14,15 +14,13 @@ _summary with histogram plot_
 _summary with price plot_
 
 #### **OBJECTIVE**
-Generate a user-friendly query engine for providing statistical information and figures for financial instruments to provide a quantitative overview to aid in arriving at profitable investment and trading decisions.
+Generate a user-friendly query engine for providing financial statistics and figures for financial instruments to provide a quantitative overview to aid in arriving at profitable investment and trading decisions.
 
 #### Project Contents 
 - [project.py](https://github.com/alfarasjb/Stocks-In-A-Nutshell/blob/main/project.py) - Main project file 
 - [test_project.py](https://github.com/alfarasjb/Stocks-In-A-Nutshell/blob/main/test_project.py) - Testing 
 - [exports](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports) - Output directory for saved PDFs and Figures
 
-
-A common, quantitative approach to investing, and trading, is through the assessment of a financial instrument's statistical summary. This program provides a simple, straight-forward, easily-interpretable user-interface for gathering statistical data. 
 
 #### **MAIN LIBRARIES AND IMPORTS**
 1. _customtkinter_ - UI Library
@@ -48,83 +46,6 @@ Building the input fields as well as the summary was a straight-forward approach
 
 Initially, a "gallery" style was to be tested for showing multiple figures, allowing the user to scroll through, as if, navigating through a photo-gallery. Ultimately, a tabview was implemented with the CustomTkinter library. 
 
-
-#### **FUNCTIONS AND CLASSES**
-
-**App Class**
-```
-UI methods - runs on start. builds main UI 
-1. build_parent_frames
-2. build_main_header
-3. build_input_fields
-4. build_stats
-5. build_tabview
-
-Functionality
-1. fetch_data - triggers an external function call to yfinance, and updates ui with received data.
-2. plot_gif - plotting figures on tabview 
-3. export_data - triggers an external function call to export current data to a PDF
-
-Utilities:
-1. err_msg - triggered by catching an exception, and displays an error message on the ui
-```
-**GENERIC FUNCTIONS**
-
-
-*validate_entry()*
-```
-parameters: symbol:str, samples:str
-raises: ValueError - Empty fields, AssertionError - Non-numeric input
-returns: symbol -> str, samples -> int
-
-- validates user input (Ticker ID and Sample Size) 
-- checks for empty inputs and non-numeric inputs for Sample Size
-```
-
-*start_download_thread*
-```
-parameters: app: App instance, symbol: str, samples: int
-
-- triggers the download thread
-```
-
-*download()*
-```
-parameters: symbol:str, samples:int
-raises: ValueError - No data for specified symbol
-returns: df -> Pandas DataFrame
-
-- downloads stock data from yahoo finance, trims the data using the tail() function
-```
-*build_data()*
-```
-parameters: symbol:str, samples: int
-raises: AssertionError - Too few samples
-returns: data -> dict, close -> Pandas Series
-
-- calculates statistical data for specified symbol
-```
-*plot_data()*
-```
-parameters: data: Pandas Series, main_data: dict, symbol: str
-returns: figures
-
-- generates figures using matplotlib and seaborn to be displayed on the UI
-```
-*export()*
-```
-parameters: sym:str, main_data:dict, figs:tuple
-
-- exports figures and summary as pdf
-- directory: root/exports/[symbol]_[samples]_[date]
-```
-#### **TESTING APPROACH**
-Tests were implemented on the core dependencies of the program: mainly for entry validation, downloading, and building main data. 
-
-Tests Done were the ff: 
-1. Testing for return data types
-2. Shape of output data: confirming if received the samples requested
-3. Raising errors for invalid inputs: non-existent symbols, non-numeric sample sizes, empty fields. 
 
 #### **CHALLENGES, ISSUES, AND RESOLUTIONS** 
 **Data Availability vs Time Complexity**
