@@ -4,22 +4,17 @@
 
 #### A query engine for generating financial statistics for a selected stock listed on Yahoo Finance, such as Standard Deviation, Variance, Skewness for a user-specified period. The program also displays a histogram, with a distribution curve, and a simple line graph of closing prices for that said period. An option to save as pdf is also provided. Examples of which can be found [here](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports).
 
-![hist](https://github.com/alfarasjb/Stocks-In-A-Nutshell/assets/72119101/27109270-46e3-4d6f-88b7-dcd8f3ed505a)
+![hist](https://github.com/alfarasjb/FinStats/blob/main/screenshots/hist.png)
 
 _summary with histogram plot_
 
 
-![prc](https://github.com/alfarasjb/Stocks-In-A-Nutshell/assets/72119101/d5d18669-c7f1-4e05-b701-9202690cfd77)
+![prc](https://github.com/alfarasjb/FinStats/blob/main/screenshots/prc.png)
 
 _summary with price plot_
 
 #### **OBJECTIVE**
 Generate a user-friendly query engine for providing financial statistics and figures for financial instruments to provide a quantitative overview to aid in arriving at profitable investment and trading decisions.
-
-#### Project Contents 
-- [project.py](https://github.com/alfarasjb/Stocks-In-A-Nutshell/blob/main/project.py) - Main project file 
-- [test_project.py](https://github.com/alfarasjb/Stocks-In-A-Nutshell/blob/main/test_project.py) - Testing 
-- [exports](https://github.com/alfarasjb/Stocks-In-A-Nutshell/tree/main/exports) - Output directory for saved PDFs and Figures
 
 
 #### **MAIN LIBRARIES AND IMPORTS**
